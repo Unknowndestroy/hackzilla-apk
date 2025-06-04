@@ -34,19 +34,22 @@ jobs:
           sudo apt update
           sudo apt install -y build-essential git zip unzip openjdk-11-jdk python3-pip python3-setuptools python3-wheel libncurses-dev libncurses6 libffi-dev libssl-dev libsqlite3-dev zlib1g-dev
 
-      - name: Android cmdline-tools indir
-        run: |
-          mkdir -p $HOME/.android/cmdline-tools
-          cd $HOME/.android/cmdline-tools
-          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
-          unzip cmdline-tools.zip
-          mv cmdline-tools latest
+    - name: Android cmdline-tools indir
+      run: |
+        mkdir -p $HOME/.android/cmdline-tools
+        cd $HOME/.android/cmdline-tools
+        wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
+        unzip cmdline-tools.zip
+        mv cmdline-tools latest
 
-      - name: Set ANDROID_HOME
-        run: echo "ANDROID_HOME=$HOME/.android" >> $GITHUB_ENV
+    - name: Set ANDROID_HOME
+      run: echo "ANDROID_HOME=$HOME/.android" >> $GITHUB_ENV
 
-      - name: Accept Android SDK licenses
-        run: yes | $HOME/.android/cmdline-tools/latest/bin/sdkmanager --licenses
+    - name: Update SDK ve Lisansları Kabul Et
+      run: |
+        yes | $HOME/.android/cmdline-tools/latest/bin/sdkmanager --licenses
+        $HOME/.android/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;36.0.0"
+
 
 
       - name: Buildozer için init dosyası oluştur (gerekirse)
