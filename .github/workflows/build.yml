@@ -1,0 +1,43 @@
+name: Build Hackzilla APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      server_url:
+        description: 'Sunucu URL (örnek: http://192.168.1.145:5000/get_command)'
+        required: true
+        default: 'http://192.168.1.145:5000/get_command'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Repo'yu klonla
+      uses: actions/checkout@v3
+
+    - name: Python kur
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: buildozer bağımlılıklarını kur
+      run: |
+        sudo apt update
+        sudo apt install -y python3-pip build-essential git zip unzip openjdk-8-jdk
+        sudo apt install -y zlib1g-dev libncurses5 libncurses5-dev libffi-dev libssl-dev libsqlite3-dev libbz2-dev libreadline-dev liblzma-dev pkg-config
+        pip install --upgrade pip setuptools cython
+        pip install buildozer
+
+    - name: server_url'yi buildozer.spec'e yaz
+      run: |
+        sed -i "s|server_url = .*|server_url = '${{ github.event.inputs.server_url }}'|" buildozer.spec
+
+    - name: APK'yı derle
+      run: buildozer android debug
+
+    - name: APK çıktısını yükle
+      uses: actions/upload-artifact@v3
+      with:
+        name: hackzilla-apk
+        path: bin/*.apk
