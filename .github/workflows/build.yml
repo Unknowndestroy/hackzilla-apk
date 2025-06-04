@@ -24,10 +24,11 @@ jobs:
           python -m pip install --upgrade pip
 
       - name: Gereksinimleri yükle
-        run: |
-          pip install buildozer cython
-          sudo apt update
-          sudo apt install -y build-essential git zip unzip openjdk-11-jdk python3-pip python3-setuptools python3-wheel libncurses6 libncurses6-dev libffi-dev libssl-dev libsqlite3-dev zlib1g-dev
+          run: |
+            pip install buildozer cython
+            sudo apt update
+            sudo apt install -y build-essential git zip unzip openjdk-11-jdk python3-pip python3-setuptools python3-wheel libncurses-dev libncurses6 libffi-dev libssl-dev libsqlite3-dev zlib1g-dev
+
 
 
       - name: Buildozer için init dosyası oluştur (gerekirse)
