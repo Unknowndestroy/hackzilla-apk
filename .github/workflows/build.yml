@@ -62,6 +62,10 @@ jobs:
           if [ ! -f buildozer.spec ]; then
             buildozer init
           fi
+      - name: Buildozer için SDK pathini ayarla
+        run: |
+          mkdir -p .buildozer/android/platform
+          ln -s $ANDROID_HOME .buildozer/android/platform/android-sdk
 
       - name: APK oluştur
         run: |
