@@ -1,43 +1,46 @@
-name: Build Hackzilla APK
+name: Build Hackzilla APK v2
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
-    inputs:
-      server_url:
-        description: 'Sunucu URL (örnek: http://192.168.1.145:5000/get_command)'
-        required: true
-        default: 'http://192.168.1.145:5000/get_command'
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Repo'yu klonla
-      uses: actions/checkout@v3
+      - name: Kod deposunu klonla
+        uses: actions/checkout@v3
 
-    - name: Python kur
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
+      - name: Python 3.10 kur
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
 
-    - name: buildozer bağımlılıklarını kur
-      run: |
-        sudo apt update
-        sudo apt install -y python3-pip build-essential git zip unzip openjdk-8-jdk
-        sudo apt install -y zlib1g-dev libncurses5 libncurses5-dev libffi-dev libssl-dev libsqlite3-dev libbz2-dev libreadline-dev liblzma-dev pkg-config
-        pip install --upgrade pip setuptools cython
-        pip install buildozer
+      - name: pip güncelle
+        run: |
+          python -m pip install --upgrade pip
 
-    - name: server_url'yi buildozer.spec'e yaz
-      run: |
-        sed -i "s|server_url = .*|server_url = '${{ github.event.inputs.server_url }}'|" buildozer.spec
+      - name: Gereksinimleri yükle
+        run: |
+          pip install buildozer cython
+          sudo apt update
+          sudo apt install -y build-essential git zip unzip openjdk-11-jdk python3-pip python3-setuptools python3-wheel libncurses5 libffi-dev libssl-dev libsqlite3-dev zlib1g-dev
 
-    - name: APK'yı derle
-      run: buildozer android debug
+      - name: Buildozer için init dosyası oluştur (gerekirse)
+        run: |
+          if [ ! -f buildozer.spec ]; then
+            buildozer init
+          fi
 
-    - name: APK çıktısını yükle
-      uses: actions/upload-artifact@v3
-      with:
-        name: hackzilla-apk
-        path: bin/*.apk
+      - name: APK oluştur
+        run: |
+          buildozer -v android debug
+
+      - name: APK çıktısını yükle
+        uses: actions/upload-artifact@v4
+        with:
+          name: hackzilla-apk
+          path: bin/*.apk
