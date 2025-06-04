@@ -1,0 +1,54 @@
+name: Build Hackzilla APK
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      server_url:
+        description: 'Flask sunucu URL’si (örn: http://abcd1234.ngrok.io/get_command)'
+        required: true
+        default: 'http://192.168.1.145:5000/get_command'
+
+jobs:
+  build_apk:
+    runs-on: ubuntu-latest
+    env:
+      SERVER_URL: ${{ github.event.inputs.server_url }}
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Buildozer ve Bağımlılıklar
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
+            git zip unzip openjdk-8-jdk zlib1g-dev \
+            python3-pip python3-virtualenv libncurses5 libncurses5-dev \
+            libffi-dev libssl-dev libsqlite3-dev libbz2-dev libreadline-dev liblzma-dev
+          pip3 install --upgrade pip
+          pip3 install buildozer==1.4.0
+
+      - name: Android SDK/NDK Kurulumunu Yap
+        run: |
+          yes | buildozer android SDK install
+          yes | buildozer android NDK install
+
+      - name: Buildozer ile APK Derle
+        run: |
+          sed -i "s|SERVER_URL = .*|SERVER_URL = \"$SERVER_URL\"|" main.py
+          buildozer android debug --verbose
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: hackzilla-apk
+          path: |
+            bin/hackzilla-*.apk
