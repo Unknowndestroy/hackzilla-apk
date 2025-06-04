@@ -1,4 +1,4 @@
-name: Build Hackzilla APK
+name: Build Hackzilla APK v2
 
 on:
   workflow_dispatch:
