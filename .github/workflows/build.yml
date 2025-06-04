@@ -29,7 +29,13 @@ jobs:
         run: |
           pip install buildozer cython
           sudo apt update
-          sudo apt install -y build-essential git zip unzip openjdk-11-jdk python3-pip python3-setuptools python3-wheel libncurses-dev libffi-dev libssl-dev libsqlite3-dev zlib1g-dev
+          sudo apt install -y build-essential git zip unzip openjdk-11-jdk python3-pip python3-setuptools python3-wheel libncurses-dev libncurses6 libffi-dev libssl-dev libsqlite3-dev zlib1g-dev
+
+      - name: Set ANDROID_HOME
+        run: echo "ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk" >> $GITHUB_ENV
+
+      - name: Accept Android SDK licenses
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
 
       - name: Buildozer için init dosyası oluştur (gerekirse)
         run: |
